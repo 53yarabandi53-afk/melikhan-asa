@@ -72,8 +72,8 @@ public class WandItem extends Item {
 					setHidden(stack, true);
 				} else {
 					wand.discard();
-					player.displayClientMessage(
-							Component.literal("Asaya binilemedi. Shift'e basmadan tekrar dene."), true);
+					player.sendOverlayMessage(
+							Component.literal("Asaya binilemedi. Shift'e basmadan tekrar dene."));
 				}
 			}
 		}
