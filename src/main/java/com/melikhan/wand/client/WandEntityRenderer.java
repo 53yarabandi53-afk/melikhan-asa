@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
@@ -29,18 +29,9 @@ public class WandEntityRenderer extends EntityRenderer<WandEntity, WandRenderSta
 	private static final Quaternionf MODEL_TO_FLIGHT =
 			new Quaternionf().rotationAxis((float) Math.toRadians(120.0), 0.57735027f, 0.57735027f, 0.57735027f);
 
-	private static ItemStack glideStack;
-	private static ItemStack diveStack;
-
 	public WandEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 		this.shadowRadius = 0.0f;
-	}
-
-	private static ItemStack makeStack(String modelName) {
-		ItemStack stack = new ItemStack(ModItems.MELIKHAN);
-		stack.set(DataComponents.ITEM_MODEL, MelikhanWandMod.id(modelName));
-		return stack;
 	}
 
 	@Override
@@ -51,13 +42,15 @@ public class WandEntityRenderer extends EntityRenderer<WandEntity, WandRenderSta
 	@Override
 	public void extractRenderState(WandEntity entity, WandRenderState state, float partialTick) {
 		super.extractRenderState(entity, state, partialTick);
-		if (glideStack == null) {
-			glideStack = makeStack("melikhan_glide");
-			diveStack = makeStack("melikhan_dive");
-		}
 		state.wandYaw = Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot());
 		state.wandPitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-		ItemStack stack = entity.isDiving() ? diveStack : glideStack;
+		// Oyuncunun kendi asasinin kopyasi; sadece model suzulme/dalis kanatli surumune cevrilir.
+		ItemStack stack = entity.getDisplayStack().copy();
+		if (stack.isEmpty()) {
+			stack = new ItemStack(ModItems.MELIKHAN);
+		}
+		stack.set(DataComponents.ITEM_MODEL,
+				MelikhanWandMod.id(entity.isDiving() ? "melikhan_dive" : "melikhan_glide"));
 		Minecraft.getInstance().getItemModelResolver()
 				.updateForNonLiving(state.item, stack, ItemDisplayContext.NONE, entity);
 	}

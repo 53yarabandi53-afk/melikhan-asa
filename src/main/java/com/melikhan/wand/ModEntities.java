@@ -19,7 +19,9 @@ public final class ModEntities {
 			EntityType.Builder.<WandEntity>of(WandEntity::new, MobCategory.MISC)
 					.sized(0.9f, 0.5f)
 					.clientTrackingRange(10)
-					.noSave()
+					// DIKKAT: .noSave() KULLANMA! Minecraft, kaydedilemeyen (noSave) bir varliga binmeyi
+					// sunucuda reddeder (startRiding false doner). Oyuncu tipi de noSave oldugu icin
+					// asa kaydedilebilir olmak zorunda.
 					.build(WAND_KEY));
 
 	public static void register() {

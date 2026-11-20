@@ -8,11 +8,14 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -27,8 +30,13 @@ public class WandEntity extends Entity {
 	private static final EntityDataAccessor<Boolean> DIVING =
 			SynchedEntityData.defineId(WandEntity.class, EntityDataSerializers.BOOLEAN);
 
+	/** Asanin gorsel kopyasi (envanterdeki gercek asa degil; sadece nasil cizilecegini bildirir). */
+	private static final EntityDataAccessor<ItemStack> DISPLAY_STACK =
+			SynchedEntityData.defineId(WandEntity.class, EntityDataSerializers.ITEM_STACK);
+
 	private boolean clientDiving; // sadece istemcide
 	private int emptyTicks;       // sadece sunucuda
+	private InteractionHand hand = InteractionHand.MAIN_HAND; // asanin tutuldugu el (sunucuda)
 
 	public WandEntity(EntityType<? extends WandEntity> type, Level level) {
 		super(type, level);
@@ -39,6 +47,19 @@ public class WandEntity extends Entity {
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DIVING, false);
+		builder.define(DISPLAY_STACK, ItemStack.EMPTY);
+	}
+
+	public ItemStack getDisplayStack() {
+		return this.entityData.get(DISPLAY_STACK);
+	}
+
+	public void setDisplayStack(ItemStack stack) {
+		this.entityData.set(DISPLAY_STACK, stack);
+	}
+
+	public void setHand(InteractionHand hand) {
+		this.hand = hand;
 	}
 
 	public boolean isDiving() {
@@ -72,6 +93,12 @@ public class WandEntity extends Entity {
 				return;
 			}
 			emptyTicks = 0;
+			// Asa elden cikarsa (slot degistirme, yere atma vb.) ucus biter.
+			if (!(rider.getItemInHand(hand).getItem() instanceof WandItem)) {
+				rider.stopRiding();
+				this.discard();
+				return;
+			}
 			rider.resetFallDistance();
 			this.resetFallDistance();
 			boolean now = isDiving();
@@ -136,6 +163,9 @@ public class WandEntity extends Entity {
 	@Override
 	protected void removePassenger(Entity passenger) {
 		super.removePassenger(passenger);
+		if (!this.level().isClientSide() && passenger instanceof ServerPlayer player) {
+			WandItem.restoreAll(player); // asa tekrar elde gorunur
+		}
 		if (!this.level().isClientSide() && passenger instanceof LivingEntity living) {
 			living.resetFallDistance();
 			if (WandConfig.SLOW_FALL_TICKS > 0) {
