@@ -1,0 +1,20 @@
+{
+	"schemaVersion": 1,
+	"id": "melikhan",
+	"version": "${version}",
+	"name": "Melikhan Asa",
+	"description": "Melikhan adli ucan asa. Sag tikla ucus, asagi bakinca dalis.",
+	"authors": ["Melikhan"],
+	"license": "All-Rights-Reserved",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.melikhan.wand.MelikhanWandMod"],
+		"client": ["com.melikhan.wand.client.MelikhanWandClient"]
+	},
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~26.1",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
