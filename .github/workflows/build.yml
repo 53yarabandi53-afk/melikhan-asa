@@ -1,4 +1,5 @@
 # Build triggered after syncing the Claude ZIP project.
+# Rebuild to verify the latest WandItem API compatibility fix.
 name: Build Melikhan Asa
 
 on:
