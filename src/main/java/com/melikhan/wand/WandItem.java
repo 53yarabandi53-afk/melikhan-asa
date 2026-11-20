@@ -1,7 +1,6 @@
 package com.melikhan.wand;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -72,8 +71,6 @@ public class WandItem extends Item {
 					setHidden(stack, true);
 				} else {
 					wand.discard();
-					player.sendOverlayMessage(
-							Component.literal("Asaya binilemedi. Shift'e basmadan tekrar dene."));
 				}
 			}
 		}
